@@ -18,7 +18,7 @@ export function Button({ variant = 'primary', fullWidth = false, className = '',
   return (
     <button
       type={type}
-      className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-5 py-3 text-base font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-coral-500 disabled:cursor-not-allowed ${fullWidth ? 'w-full' : ''} ${VARIANTS[variant]} ${className}`}
+      className={`inline-flex min-h-12 items-center whitespace-nowrap justify-center gap-2 rounded-2xl px-5 py-3 text-base font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-coral-500 disabled:cursor-not-allowed ${fullWidth ? 'w-full min-w-0 flex-1' : 'shrink-0'} ${VARIANTS[variant]} ${className}`}
       {...props}
     />
   )
