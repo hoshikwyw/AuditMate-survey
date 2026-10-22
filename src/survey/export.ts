@@ -8,10 +8,25 @@ import { answerLabels, questionTitle } from './summary'
 
 const LANG_NAMES: Record<Lang, string> = { en: 'English', my: 'Myanmar' }
 
-/** "2026-10-22 10:03" in her phone's local time (Myanmar time for her). */
-function localTimestamp(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+/**
+ * "2026-10-22 10:03" in her time zone. The email is built on Cloudflare's servers (UTC),
+ * so the browser sends its time zone along.
+ */
+function localTimestamp(date: Date, timeZone?: string): string {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .formatToParts(date)
+      .map((p) => [p.type, p.value]),
+  )
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`
 }
 
 function minutesBetween(start?: string, end?: string): number | undefined {
@@ -21,14 +36,14 @@ function minutesBetween(start?: string, end?: string): number | undefined {
 }
 
 /** The text she shares to you. */
-export function buildMessage(state: SurveyState, now = new Date()): string {
+export function buildMessage(state: SurveyState, now = new Date(), timeZone?: string): string {
   const { answers } = state
   const minutes = minutesBetween(state.startedAt, now.toISOString())
   const lines = [
     'AuditMate survey 💛',
     [
       `ID ${state.responseId.slice(0, 8)}`,
-      localTimestamp(now),
+      localTimestamp(now, timeZone),
       `in ${LANG_NAMES[state.lang]}`,
       minutes !== undefined ? `${minutes} min` : undefined,
     ]

@@ -1,40 +1,42 @@
 import { useRef, useState } from 'react'
 import type { Dispatch } from 'react'
-import { copyText, downloadJson, shareText } from '../lib/share'
+import { copyText, downloadJson } from '../lib/fallback'
+import { submitAnswers } from '../lib/submit'
 import { buildExport, buildMessage } from './export'
 import type { Action, SurveyState } from './state'
 
-export type SendStatus =
-  | 'idle'
-  | 'sending'
-  /** No share sheet on this device: the message was copied so she can paste it. */
-  | 'pasteNow'
-  | 'failed'
+export type SendStatus = 'idle' | 'sending' | 'failed'
 
-/** Send / copy / save actions shared by the review and thank-you screens. */
+/** One-tap silent send, plus copy / save backups if it fails. */
 export function useSend(state: SurveyState, dispatch: Dispatch<Action>) {
   const [status, setStatus] = useState<SendStatus>('idle')
   const [copied, setCopied] = useState(false)
   const busy = useRef(false)
+  // Fixed on the first attempt so retries send an identical payload (the server dedupes on it).
+  const submittedAt = useRef<string | undefined>(undefined)
 
   const send = async () => {
-    if (busy.current) return // ignore repeat taps while the share sheet is open
+    if (busy.current) return // ignore repeat taps while sending
     busy.current = true
     setStatus('sending')
-    try {
-      const result = await shareText('AuditMate survey', buildMessage(state))
-      if (result === 'shared') {
-        dispatch({ type: 'markSent' })
-        setStatus('idle')
-      } else if (result === 'cancelled') {
-        setStatus('idle')
-      } else if (result === 'unsupported') {
-        setStatus((await copyText(buildMessage(state))) ? 'pasteNow' : 'failed')
-      } else {
-        setStatus('failed')
-      }
-    } finally {
-      busy.current = false
+    submittedAt.current ??= new Date().toISOString()
+    const ok = await submitAnswers({
+      lang: state.lang,
+      responseId: state.responseId,
+      startedAt: state.startedAt,
+      submittedAt: submittedAt.current,
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      answers: state.answers,
+      skipped: state.skipped,
+      consent: true,
+      website: (document.getElementById('website') as HTMLInputElement | null)?.value ?? '',
+    })
+    busy.current = false
+    if (ok) {
+      dispatch({ type: 'markSent' })
+      setStatus('idle')
+    } else {
+      setStatus('failed')
     }
   }
 
@@ -42,18 +44,11 @@ export function useSend(state: SurveyState, dispatch: Dispatch<Action>) {
     const ok = await copyText(buildMessage(state))
     setCopied(ok)
     if (ok) setTimeout(() => setCopied(false), 2500)
-    return ok
   }
 
   const saveFile = () => {
     downloadJson(`auditmate-survey-${state.responseId.slice(0, 8)}.json`, buildExport(state))
   }
 
-  /** She pasted the copied message herself. */
-  const confirmPasted = () => {
-    dispatch({ type: 'markSent' })
-    setStatus('idle')
-  }
-
-  return { status, copied, send, copy, saveFile, confirmPasted }
+  return { status, copied, send, copy, saveFile }
 }

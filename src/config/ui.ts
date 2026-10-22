@@ -42,15 +42,7 @@ export const UI = {
   copied: { en: 'Copied!', my: 'ကူးယူပြီးပါပြီ!' },
   exportJson: { en: 'Save answers as a file', my: 'အဖြေတွေကို ဖိုင်အဖြစ် သိမ်းမယ်' },
   retry: { en: 'Try again', my: 'ထပ်ကြိုးစားမယ်' },
-  pasteNow: {
-    en: 'Copied! Now paste it to {me} in Viber or Telegram.',
-    my: 'ကူးယူပြီးပါပြီ! Viber ဒါမှမဟုတ် Telegram မှာ {me} ဆီ paste လုပ်ပြီး ပို့ပေးပါ။',
-  },
-  pastedDone: { en: "Done, I've sent it", my: 'ပို့ပြီးပါပြီ' },
-  thanksBackup: {
-    en: "Didn't go through? Copy or save your answers here.",
-    my: 'မရောက်သွားဘူးဆိုရင် ဒီမှာ အဖြေတွေ ကူးယူ ဒါမှမဟုတ် သိမ်းလို့ရပါတယ်။',
-  },
+  sending: { en: 'Sending…', my: 'ပို့နေပါတယ်…' },
   sendFailed: {
     en: "Couldn't send yet. Your answers are saved on this phone. Try again or copy them.",
     my: 'မပို့နိုင်သေးပါ။ အဖြေတွေ ဒီဖုန်းထဲမှာ သိမ်းထားပါတယ်။ ထပ်ကြိုးစားပါ ဒါမှမဟုတ် ကူးယူပါ။',

@@ -4,6 +4,7 @@ Run this on a real phone before sending her the link. ~10 minutes.
 
 ## Before you start
 - [ ] `src/config/personal.ts` has her name and your name (not "Her name" / "Your name").
+- [ ] Cloudflare has `RESEND_API_KEY` and `TO_EMAIL` set, and you redeployed after setting them.
 - [ ] Open the deployed link, not localhost.
 
 ## Phones to test
@@ -32,10 +33,10 @@ And **open the link from inside Viber/Telegram** (tap it in a chat). Those apps 
 ## Review + send
 - [ ] Review shows every answer; **Edit** on any one → change it → **Next** returns to review.
 - [ ] Send is disabled until the consent box is ticked.
-- [ ] **Send** opens the share sheet → pick Viber/Telegram → you receive the message.
-- [ ] Closing the share sheet without picking an app keeps her on review (nothing lost).
-- [ ] If the in-app browser has no share sheet: "Copied! Now paste it…" appears; pasting into a chat works; "Done, I've sent it" → thank-you screen.
-- [ ] Thank-you screen: **Copy my answers** and **Save answers as a file** work.
+- [ ] **Send** shows "Sending…", then the thank-you screen — no other app opens.
+- [ ] The email "AuditMate survey from mama 💛" arrives in your inbox within a minute (check Spam the first time and mark it Not spam). The time shown is the phone's local time.
+- [ ] Tapping Send several times quickly gives **one** email.
+- [ ] Turn on airplane mode → Send → "Couldn't send yet" box appears with **Try again / Copy my answers / Save answers as a file**. Turn airplane mode off → **Try again** → thank-you screen + email arrives.
 
 ## Display
 - [ ] Burmese text is not cut off or overlapping anywhere (especially stacked letters like ကျော်, ပြီး).

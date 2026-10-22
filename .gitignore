@@ -8,3 +8,5 @@ dist
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+.dev.vars
+.wrangler

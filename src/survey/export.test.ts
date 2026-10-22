@@ -23,10 +23,11 @@ const finished = () =>
   ).reduce(reducer, { ...initialState(), responseId: 'abcdef12-3456', startedAt: '2026-10-22T10:00:00.000Z' })
 
 describe('buildMessage', () => {
-  const message = buildMessage(finished(), new Date('2026-10-22T10:03:00.000Z'))
+  const message = buildMessage(finished(), new Date('2026-10-22T10:03:00.000Z'), 'Asia/Yangon')
 
-  it('has a header with id, time, language and duration', () => {
-    expect(message).toMatch(/^ID abcdef12 · 2026-10-2\d \d\d:\d3 · in Myanmar · 3 min$/m)
+  it('has a header with id, her local time, language and duration', () => {
+    // 10:03 UTC = 16:33 in Myanmar (UTC+6:30)
+    expect(message).toContain('ID abcdef12 · 2026-10-22 16:33 · in Myanmar · 3 min')
   })
 
   it('uses English labels, ranked order and the #1 task in titles', () => {
