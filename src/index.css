@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', 'Noto Sans Myanmar', system-ui, sans-serif;
+  --font-myanmar: 'Noto Sans Myanmar', 'Inter', system-ui, sans-serif;
+
+  --color-cream: #fff7f2;
+  --color-ink: #2b2420;
+  --color-muted: #7a6c64;
+  --color-line: #f0e2d8;
+  --color-coral-50: #fff1ee;
+  --color-coral-100: #ffdcd5;
+  --color-coral-500: #f26b5b;
+  --color-coral-600: #db5544;
+  --color-coral-700: #b8402f;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+}
+
+/* Burmese has tall stacked glyphs: give it more line height and the Myanmar font first. */
+:lang(my) {
+  font-family: var(--font-myanmar);
+  line-height: 1.8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
