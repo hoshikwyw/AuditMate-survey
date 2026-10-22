@@ -26,7 +26,7 @@ export function ChoiceCard({ mode, label, lang, selected, rank, disabled = false
       aria-checked={selected}
       aria-disabled={disabled || undefined}
       onClick={disabled ? undefined : onClick}
-      className={`flex min-h-14 w-full items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-coral-500 ${
+      className={`flex min-h-14 w-full items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-coral-600 ${
         selected
           ? 'border-coral-500 bg-coral-50'
           : disabled
@@ -47,7 +47,7 @@ function Marker({ mode, selected, rank }: { mode: Mode; selected: boolean; rank?
     return (
       <span
         className={`flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-          selected ? 'bg-coral-500 text-white' : 'border-2 border-line text-transparent'
+          selected ? 'bg-coral-600 text-white' : 'border-2 border-line text-transparent'
         }`}
         aria-hidden="true"
       >
@@ -59,7 +59,7 @@ function Marker({ mode, selected, rank }: { mode: Mode; selected: boolean; rank?
   return (
     <span
       className={`flex size-6 shrink-0 items-center justify-center border-2 ${shape} ${
-        selected ? 'border-coral-500 bg-coral-500 text-white' : 'border-line bg-white'
+        selected ? 'border-coral-600 bg-coral-600 text-white' : 'border-line bg-white'
       }`}
       aria-hidden="true"
     >

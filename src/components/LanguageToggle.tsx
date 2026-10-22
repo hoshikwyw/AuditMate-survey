@@ -15,7 +15,7 @@ export function LanguageToggle({ lang, onChange }: LanguageToggleProps) {
       lang={other}
       onClick={() => onChange(other)}
       aria-label={other === 'my' ? 'Switch to Myanmar' : 'English သို့ ပြောင်းရန်'}
-      className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-line bg-white px-3.5 text-sm font-medium text-ink transition-colors hover:bg-coral-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-coral-500"
+      className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-line bg-white px-3.5 text-sm font-medium text-ink transition-colors hover:bg-coral-50 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-coral-600"
     >
       <GlobeIcon />
       {other === 'my' ? 'မြန်မာ' : 'English'}

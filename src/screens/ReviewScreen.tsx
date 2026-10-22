@@ -77,7 +77,7 @@ export function ReviewScreen({ state, dispatch }: Props) {
                 <button
                   type="button"
                   onClick={() => dispatch({ type: 'edit', question: q.id })}
-                  className="min-h-10 shrink-0 rounded-xl px-3 text-sm font-semibold text-coral-600 hover:bg-coral-50 focus-visible:outline-3 focus-visible:outline-coral-500"
+                  className="min-h-10 shrink-0 rounded-xl px-3 text-sm font-semibold text-coral-600 hover:bg-coral-50 focus-visible:outline-3 focus-visible:outline-coral-600"
                 >
                   {tr(UI.edit, lang)}
                 </button>
