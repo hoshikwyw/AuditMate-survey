@@ -17,13 +17,13 @@ And **open the link from inside Viber/Telegram** (tap it in a chat). Those apps 
 ## Flow
 - [ ] Link preview in Viber/Telegram shows "A quick favour 💛".
 - [ ] Welcome screen shows her name. Tap the language button: everything switches to Burmese and back.
-- [ ] Q1: tapping a workplace moves to the next question by itself.
-- [ ] Q2: the task list matches the workplace (e.g. bank → loan files, KYC).
-- [ ] Q3: tap 3 tasks → numbers 1, 2, 3 appear; a 4th can't be picked; **Clear** resets.
-- [ ] Q4: **Skip** works and moves on.
-- [ ] Q5: picking **Not sure** clears the others.
-- [ ] Q6 / Q7: the question names her #1 task.
-- [ ] Q9: tapping a suggestion chip fills the note; the note stays editable; counter shows /300.
+- [ ] Q1: pick 3+ checks (e.g. Excel ⇄ vouchers, warehouse stock count, investigating).
+- [ ] Q2: tap 3 → numbers 1, 2, 3 appear; a 4th can't be picked; **Clear** resets. (Pick only 1 task in Q1 → Q2 is skipped.)
+- [ ] Q3: picking **Not sure** clears the others.
+- [ ] Q4: tapping a size moves on by itself; **Skip** also works.
+- [ ] Q5: after 3 problems, the rest are greyed out.
+- [ ] Q7 / Q8: the question names her #1 task.
+- [ ] Q10: tapping a suggestion chip fills the note; the note stays editable; counter shows /300.
 - [ ] Back button keeps all answers.
 
 ## Draft saving

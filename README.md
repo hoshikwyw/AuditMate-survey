@@ -126,12 +126,15 @@ ID abcdef12 · 2026-10-22 16:33 · in Myanmar · 3 min
 
 The time is her phone's local time. Labels are always in English so they're easy to compare; her note stays exactly as she wrote it. The JSON at the bottom keeps the raw answer ids for later.
 
-What to look at first:
-- **Q3 #1–#3** → her most painful tasks → what to prototype first
-- **Q6 × Q7** → how much time the #1 task costs per week
-- **Q5** → build around Excel, PDFs, or paper?
-- **Q8** → laptop app or phone app
-- **Q9 + note** → her own vote
+What to look at first (her work: Excel ⇄ vouchers ⇄ warehouse stock):
+- **Q2 #1–#3** → her most painful checks → what to prototype first
+- **Q7 × Q8** → how much time the #1 task costs per week
+- **Q3** → how vouchers get into the app (paper → manual tick list / photos; PDF or software → import)
+- **Q4** → file size: small files = tick-list UI, big files = automatic matching first
+- **Q5** → her top 3 problems = the automatic checks to build (duplicates, skipped numbers, qty/stock differences…)
+- **Q6** → what the output should look like (highlighted Excel, problem list, Word report)
+- **Q9** → laptop app, phone app, or both (phone for warehouse counts)
+- **Q10 + note** → her own vote
 
 ## Changing questions or wording
 

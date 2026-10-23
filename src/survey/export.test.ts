@@ -7,17 +7,19 @@ const finished = () =>
   (
     [
       { type: 'setLang', lang: 'my' },
-      { type: 'selectSingle', question: 'workplace', id: 'bank_mfi' },
-      { type: 'toggleMulti', question: 'tasks', id: 'loan_files' },
-      { type: 'toggleMulti', question: 'tasks', id: 'kyc' },
-      { type: 'toggleRank', id: 'kyc' },
-      { type: 'toggleRank', id: 'loan_files' },
-      { type: 'skip', question: 'stress' },
-      { type: 'toggleMulti', question: 'tools', id: 'excel' },
+      { type: 'toggleMulti', question: 'tasks', id: 'excel_vouchers' },
+      { type: 'toggleMulti', question: 'tasks', id: 'stock_count' },
+      { type: 'toggleRank', id: 'stock_count' },
+      { type: 'toggleRank', id: 'excel_vouchers' },
+      { type: 'toggleMulti', question: 'voucherFormat', id: 'paper' },
+      { type: 'skip', question: 'fileSize' },
+      { type: 'toggleMulti', question: 'problems', id: 'qty_mismatch' },
+      { type: 'toggleMulti', question: 'problems', id: 'missing_voucher' },
+      { type: 'toggleMulti', question: 'recordMethod', id: 'highlight' },
       { type: 'selectSingle', question: 'frequency', id: 'daily' },
-      { type: 'selectSingle', question: 'duration', id: '1_2h' },
-      { type: 'selectSingle', question: 'device', id: 'own_laptop' },
-      { type: 'selectSingle', question: 'buildFirst', id: 'find_errors' },
+      { type: 'selectSingle', question: 'duration', id: '2_4h' },
+      { type: 'selectSingle', question: 'device', id: 'laptop_and_phone' },
+      { type: 'selectSingle', question: 'buildFirst', id: 'stock_compare' },
       { type: 'setNote', note: 'အချိန်မီ အိမ်ပြန်ချင်တယ်။' },
     ] as Action[]
   ).reduce(reducer, { ...initialState(), responseId: 'abcdef12-3456', startedAt: '2026-10-22T10:00:00.000Z' })
@@ -31,12 +33,12 @@ describe('buildMessage', () => {
   })
 
   it('uses English labels, ranked order and the #1 task in titles', () => {
-    expect(message).toContain('   #1 KYC — checking customer documents\n   #2 Loan file reviews')
-    expect(message).toContain('How often do you do "KYC — checking customer documents"?\n   • Almost every working day')
+    expect(message).toContain('   #1 Counting warehouse stock and comparing with records\n   #2 Checking Excel records against vouchers')
+    expect(message).toContain('How often do you do "Counting warehouse stock and comparing with records"?\n   • Almost every working day')
   })
 
   it('marks skipped questions and keeps her note as written', () => {
-    expect(message).toContain('When do you feel most stressed at work?\n   (skipped)')
+    expect(message).toContain('How many rows does a typical Excel file have?\n   (skipped)')
     expect(message).toContain('Note: "အချိန်မီ အိမ်ပြန်ချင်တယ်။"')
   })
 })
@@ -46,8 +48,8 @@ describe('buildExport', () => {
     const data = buildExport(finished(), new Date('2026-10-22T10:03:00.000Z'))
     expect(data.responseId).toBe('abcdef12-3456')
     expect(data.language).toBe('my')
-    expect(data.answers.topTasks).toEqual(['kyc', 'loan_files'])
-    expect(data.readable.workplace).toEqual(['Internal audit at a bank or microfinance'])
-    expect(data.skipped).toEqual(['stress'])
+    expect(data.answers.topTasks).toEqual(['stock_count', 'excel_vouchers'])
+    expect(data.readable.problems).toEqual(["Quantity doesn't match", 'A row has no voucher (or a voucher has no row)'])
+    expect(data.skipped).toEqual(['fileSize'])
   })
 })

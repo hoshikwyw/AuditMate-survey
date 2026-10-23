@@ -1,12 +1,13 @@
 // Survey state + reducer. Every change goes through here so it can be saved and tested.
 
-import type { Lang, QuestionId, WorkplaceId } from '../config/types'
+import type { Lang, QuestionId } from '../config/types'
 import {
   EMPTY_ANSWERS,
   canContinue,
   firstMissingRequired,
   getOptions,
   getQuestion,
+  isMulti,
   isQuestionScreen,
   nextScreen,
   prevScreen,
@@ -103,12 +104,13 @@ export function reducer(state: SurveyState, action: Action): SurveyState {
       return { ...state, screen: prevScreen(state.screen, answers) }
 
     case 'selectSingle': {
-      const value = action.question === 'workplace' ? (action.id as WorkplaceId) : action.id
-      return withAnswers(state, action.question, { ...answers, [action.question]: value })
+      if (isMulti(action.question)) return state
+      return withAnswers(state, action.question, { ...answers, [action.question]: action.id })
     }
 
     case 'toggleMulti': {
-      const q = action.question as 'tasks' | 'tools'
+      const q = action.question
+      if (!isMulti(q)) return state
       const current = answers[q]
       const options = getOptions(q, answers)
       const picked = options.find((opt) => opt.id === action.id)
@@ -147,7 +149,7 @@ export function reducer(state: SurveyState, action: Action): SurveyState {
 
     case 'skip': {
       if (getQuestion(action.question).required) return state
-      const cleared: Answers = { ...answers, [action.question]: undefined }
+      const cleared: Answers = { ...answers, [action.question]: isMulti(action.question) ? [] : undefined }
       if (action.question === 'buildFirst') cleared.note = ''
       return {
         ...state,

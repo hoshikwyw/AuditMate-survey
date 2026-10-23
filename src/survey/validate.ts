@@ -1,11 +1,10 @@
 // Server-side check of a submission (runs in the Cloudflare Function, see functions/api/submit.ts).
 // Never trusts the browser: rebuilds a clean state using only ids that exist in the survey config.
 
-import { QUESTIONS } from '../config/survey'
-import type { Lang, QuestionId, WorkplaceId } from '../config/types'
-import { EMPTY_ANSWERS, firstMissingRequired, getOptions, getQuestion, reconcile } from './flow'
+import { NOTE_MAX_LENGTH, QUESTIONS } from '../config/survey'
+import type { Lang, QuestionId } from '../config/types'
+import { EMPTY_ANSWERS, MULTI_IDS, SINGLE_IDS, firstMissingRequired, getOptions, getQuestion, reconcile } from './flow'
 import type { Answers } from './flow'
-import { NOTE_MAX_LENGTH } from '../config/survey'
 import { initialState } from './state'
 import type { SurveyState } from './state'
 
@@ -70,23 +69,21 @@ export function validateSubmission(input: unknown, now = new Date()): Validation
   const a = raw as Record<string, unknown>
 
   // Rebuild answers field by field; anything not in the config is rejected.
-  const workplaceIds = getQuestion('workplace').options.map((o) => o.id)
-  if (!isString(a.workplace) || !workplaceIds.includes(a.workplace)) return fail('bad workplace')
-  let answers: Answers = { ...EMPTY_ANSWERS, workplace: a.workplace as WorkplaceId }
-
-  for (const key of ['tasks', 'topTasks', 'tools'] as const) {
+  // MULTI_IDS lists tasks before topTasks, so ranking is checked against the picked tasks.
+  let answers: Answers = { ...EMPTY_ANSWERS }
+  for (const key of MULTI_IDS) {
     const value = a[key] ?? []
     if (!isStringArray(value) || new Set(value).size !== value.length) return fail(`bad ${key}`)
-    const allowed = new Set(getOptions(key, answers).map((o) => o.id))
-    if (value.some((id) => !allowed.has(id))) return fail(`unknown ${key}`)
+    const options = getOptions(key, answers)
+    if (value.some((id) => !options.some((o) => o.id === id))) return fail(`unknown ${key}`)
     const max = getQuestion(key).maxPicks
     if (max && value.length > max) return fail(`too many ${key}`)
+    const exclusive = options.filter((o) => o.exclusive).map((o) => o.id)
+    if (value.length > 1 && value.some((id) => exclusive.includes(id))) return fail(`exclusive ${key}`)
     answers = { ...answers, [key]: value }
   }
-  const exclusive = getOptions('tools', answers).filter((o) => o.exclusive).map((o) => o.id)
-  if (answers.tools.length > 1 && answers.tools.some((id) => exclusive.includes(id))) return fail('exclusive tools')
 
-  for (const key of ['stress', 'frequency', 'duration', 'device', 'buildFirst'] as const) {
+  for (const key of SINGLE_IDS) {
     const value = a[key]
     if (value === undefined || value === null) continue
     if (!isString(value) || !getOptions(key, answers).some((o) => o.id === value)) return fail(`bad ${key}`)
@@ -97,9 +94,7 @@ export function validateSubmission(input: unknown, now = new Date()): Validation
   if (!isString(note) || note.length > NOTE_MAX_LENGTH) return fail('bad note')
   answers = { ...answers, note: note.trim() }
 
-  // Must be identical after cleanup (e.g. a ranked task that wasn't picked would be dropped).
   const cleaned = reconcile(answers)
-  if (cleaned.topTasks.length !== answers.topTasks.length) return fail('inconsistent ranking')
   if (firstMissingRequired(cleaned) !== undefined) return fail('incomplete')
 
   const skipped = p.skipped ?? []

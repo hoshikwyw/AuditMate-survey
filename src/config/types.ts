@@ -8,30 +8,15 @@ export interface Option {
   label: Text
   /** Selecting this clears every other choice (e.g. "Not sure"). */
   exclusive?: boolean
-  /** Only show this option when Q1 (workplace) is one of these. */
-  onlyFor?: WorkplaceId[]
 }
-
-export type WorkplaceId =
-  | 'audit_firm'
-  | 'internal_company'
-  | 'bank_mfi'
-  | 'government'
-  | 'accounting'
-  | 'other'
 
 export type QuestionKind = 'single' | 'multi' | 'rank'
 
-export type QuestionId =
-  | 'workplace'
-  | 'tasks'
-  | 'topTasks'
-  | 'stress'
-  | 'tools'
-  | 'frequency'
-  | 'duration'
-  | 'device'
-  | 'buildFirst'
+/** Questions whose answer is a list of option ids. */
+export type MultiQuestionId = 'tasks' | 'topTasks' | 'voucherFormat' | 'problems' | 'recordMethod'
+/** Questions whose answer is one option id. */
+export type SingleQuestionId = 'fileSize' | 'frequency' | 'duration' | 'device' | 'buildFirst'
+export type QuestionId = MultiQuestionId | SingleQuestionId
 
 export interface Question {
   id: QuestionId
@@ -40,7 +25,7 @@ export interface Question {
   title: Text
   helper?: Text
   required: boolean
-  /** Fixed options. Questions with dynamic options (tasks, topTasks) leave this empty. */
+  /** Fixed options. topTasks leaves this empty: it shows the tasks she picked. */
   options: Option[]
   /** For multi / rank questions. */
   maxPicks?: number

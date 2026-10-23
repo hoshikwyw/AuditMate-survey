@@ -1,15 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { NOTE_CHIPS, QUESTIONS, TASK_LISTS } from './survey'
+import { NON_RANKABLE_TASKS, NOTE_CHIPS, QUESTIONS } from './survey'
 import { UI } from './ui'
 import type { Option, Text } from './types'
+import { MULTI_IDS, SINGLE_IDS } from '../survey/flow'
 
 const filled = (text: Text) => text.en.trim() !== '' && text.my.trim() !== ''
 const uniqueIds = (options: Option[]) => new Set(options.map((o) => o.id)).size === options.length
 
 describe('survey config', () => {
-  it('has 9 questions with unique ids', () => {
-    expect(QUESTIONS).toHaveLength(9)
-    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(9)
+  it('has 10 questions with unique ids', () => {
+    expect(QUESTIONS).toHaveLength(10)
+    expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(10)
+  })
+
+  it('lists every question exactly once as single or multi, matching its kind', () => {
+    expect([...MULTI_IDS, ...SINGLE_IDS].sort()).toEqual(QUESTIONS.map((q) => q.id).sort())
+    for (const q of QUESTIONS) expect(q.kind === 'single', q.id).toBe((SINGLE_IDS as string[]).includes(q.id))
   })
 
   it('has every question text in both languages', () => {
@@ -21,13 +27,13 @@ describe('survey config', () => {
     }
   })
 
-  it('has a task list for every workplace option, with unique ids and both languages', () => {
-    const workplaces = QUESTIONS.find((q) => q.id === 'workplace')!.options.map((o) => o.id)
-    expect(Object.keys(TASK_LISTS).sort()).toEqual([...workplaces].sort())
-    for (const [workplace, list] of Object.entries(TASK_LISTS)) {
-      expect(uniqueIds(list), workplace).toBe(true)
-      for (const opt of list) expect(filled(opt.label), `${workplace}.${opt.id}`).toBe(true)
-    }
+  it('only the ranking question has dynamic options', () => {
+    for (const q of QUESTIONS) expect(q.options.length === 0, q.id).toBe(q.id === 'topTasks')
+  })
+
+  it('non-rankable tasks exist in the task list', () => {
+    const taskIds = QUESTIONS.find((q) => q.id === 'tasks')!.options.map((o) => o.id)
+    for (const id of NON_RANKABLE_TASKS) expect(taskIds).toContain(id)
   })
 
   it('has all UI text and note chips in both languages', () => {

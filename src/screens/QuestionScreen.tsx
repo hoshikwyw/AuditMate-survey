@@ -12,7 +12,7 @@ import { tr } from '../config/i18n'
 import { NOTE_CHIPS, NOTE_MAX_LENGTH } from '../config/survey'
 import type { QuestionId } from '../config/types'
 import { UI } from '../config/ui'
-import { canContinue, getOptions, getQuestion, progress } from '../survey/flow'
+import { canContinue, getOptions, getQuestion, isMulti, progress } from '../survey/flow'
 import type { Action, SurveyState } from '../survey/state'
 import { questionTitle } from '../survey/summary'
 
@@ -46,7 +46,7 @@ export function QuestionScreen({ id, state, dispatch }: Props) {
   }
 
   const max = question.maxPicks
-  const picked = id === 'topTasks' ? answers.topTasks : id === 'tasks' ? answers.tasks : id === 'tools' ? answers.tools : []
+  const picked = isMulti(id) ? answers[id] : []
 
   return (
     <ScreenLayout
@@ -121,6 +121,7 @@ export function QuestionScreen({ id, state, dispatch }: Props) {
                 lang={lang}
                 label={label}
                 selected={picked.includes(opt.id)}
+                disabled={!picked.includes(opt.id) && !opt.exclusive && max !== undefined && picked.length >= max}
                 onClick={() => dispatch({ type: 'toggleMulti', question: id, id: opt.id })}
               />
             )

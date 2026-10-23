@@ -1,24 +1,24 @@
 // Pure survey logic: which options and questions she sees, and in what order.
 // No React here, so it can be tested on its own.
 
-import { NON_RANKABLE_TASKS, QUESTIONS, TASK_LISTS } from '../config/survey'
-import type { Option, Question, QuestionId, WorkplaceId } from '../config/types'
+import { NON_RANKABLE_TASKS, QUESTIONS } from '../config/survey'
+import type { MultiQuestionId, Option, Question, QuestionId, SingleQuestionId } from '../config/types'
 
-export interface Answers {
-  workplace?: WorkplaceId
-  tasks: string[]
-  /** Ranked: index 0 is her #1. */
-  topTasks: string[]
-  stress?: string
-  tools: string[]
-  frequency?: string
-  duration?: string
-  device?: string
-  buildFirst?: string
+export type Answers = { [K in MultiQuestionId]: string[] } & { [K in SingleQuestionId]?: string } & {
   note: string
 }
 
-export const EMPTY_ANSWERS: Answers = { tasks: [], topTasks: [], tools: [], note: '' }
+export const MULTI_IDS: MultiQuestionId[] = ['tasks', 'topTasks', 'voucherFormat', 'problems', 'recordMethod']
+export const SINGLE_IDS: SingleQuestionId[] = ['fileSize', 'frequency', 'duration', 'device', 'buildFirst']
+
+export const EMPTY_ANSWERS: Answers = {
+  tasks: [],
+  topTasks: [],
+  voucherFormat: [],
+  problems: [],
+  recordMethod: [],
+  note: '',
+}
 
 export type Screen = 'welcome' | QuestionId | 'review' | 'thanks'
 
@@ -32,30 +32,20 @@ export function isQuestionScreen(screen: Screen): screen is QuestionId {
   return screen in QUESTION_BY_ID
 }
 
-/** Task options for her workplace (empty until Q1 is answered). */
-export function taskOptions(answers: Answers): Option[] {
-  return answers.workplace ? TASK_LISTS[answers.workplace] : []
+export function isMulti(id: QuestionId): id is MultiQuestionId {
+  return (MULTI_IDS as string[]).includes(id)
 }
 
 /** Tasks she picked that make sense to rank. */
 export function rankableTasks(answers: Answers): Option[] {
-  return taskOptions(answers).filter(
+  return getQuestion('tasks').options.filter(
     (opt) => answers.tasks.includes(opt.id) && !NON_RANKABLE_TASKS.includes(opt.id),
   )
 }
 
 /** The options shown for a question, given her earlier answers. */
 export function getOptions(id: QuestionId, answers: Answers): Option[] {
-  switch (id) {
-    case 'tasks':
-      return taskOptions(answers)
-    case 'topTasks':
-      return rankableTasks(answers)
-    default:
-      return getQuestion(id).options.filter(
-        (opt) => !opt.onlyFor || (answers.workplace && opt.onlyFor.includes(answers.workplace)),
-      )
-  }
+  return id === 'topTasks' ? rankableTasks(answers) : getQuestion(id).options
 }
 
 /** Her #1 task: first ranked, or the only rankable one if she picked just one. */
@@ -84,8 +74,7 @@ export function visibleQuestions(answers: Answers): Question[] {
 }
 
 export function isAnswered(id: QuestionId, answers: Answers): boolean {
-  const value = answers[id]
-  return Array.isArray(value) ? value.length > 0 : value !== undefined
+  return isMulti(id) ? answers[id].length > 0 : answers[id] !== undefined
 }
 
 export function canContinue(id: QuestionId, answers: Answers): boolean {
@@ -121,15 +110,20 @@ export function firstMissingRequired(answers: Answers): QuestionId | undefined {
 }
 
 /**
- * Drops answers that no longer make sense after an earlier answer changed,
- * e.g. tasks from a different workplace's list.
+ * Rebuilds answers keeping only ids that exist in the current config, e.g. after a task is
+ * unticked (its ranking goes too) or a saved draft comes from an older version of the survey.
  */
-export function reconcile(answers: Answers): Answers {
-  const validTasks = new Set(taskOptions(answers).map((opt) => opt.id))
-  const tasks = answers.tasks.filter((id) => validTasks.has(id))
-  const rankable = new Set(rankableTasks({ ...answers, tasks }).map((opt) => opt.id))
-  const topTasks = answers.topTasks.filter((id) => rankable.has(id))
-  const validTools = new Set(getOptions('tools', answers).map((opt) => opt.id))
-  const tools = answers.tools.filter((id) => validTools.has(id))
-  return { ...answers, tasks, topTasks, tools }
+export function reconcile(answers: Partial<Answers>): Answers {
+  const result: Answers = { ...EMPTY_ANSWERS, note: typeof answers.note === 'string' ? answers.note : '' }
+  // Order matters: tasks before topTasks, because ranking options depend on the picked tasks.
+  for (const id of MULTI_IDS) {
+    const valid = new Set(getOptions(id, result).map((opt) => opt.id))
+    const value = answers[id]
+    result[id] = Array.isArray(value) ? [...new Set(value.filter((v) => valid.has(v)))] : []
+  }
+  for (const id of SINGLE_IDS) {
+    const value = answers[id]
+    if (getOptions(id, result).some((opt) => opt.id === value)) result[id] = value
+  }
+  return result
 }

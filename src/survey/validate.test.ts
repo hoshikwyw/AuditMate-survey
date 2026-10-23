@@ -11,18 +11,19 @@ const valid = (): SubmitPayload => ({
   submittedAt: '2026-10-22T10:04:00.000Z',
   timeZone: 'Asia/Yangon',
   answers: {
-    workplace: 'bank_mfi',
-    tasks: ['loan_files', 'kyc'],
-    topTasks: ['kyc', 'loan_files'],
-    stress: undefined,
-    tools: ['excel'],
+    tasks: ['excel_vouchers', 'stock_count'],
+    topTasks: ['stock_count', 'excel_vouchers'],
+    voucherFormat: ['paper'],
+    fileSize: undefined,
+    problems: ['qty_mismatch', 'missing_voucher'],
+    recordMethod: ['highlight'],
     frequency: 'daily',
-    duration: '1_2h',
-    device: 'own_laptop',
-    buildFirst: 'find_errors',
+    duration: '2_4h',
+    device: 'laptop_and_phone',
+    buildFirst: 'stock_compare',
     note: ' I want to go home on time. ',
   },
-  skipped: ['stress'],
+  skipped: ['fileSize'],
   consent: true,
   website: '',
 })
@@ -38,7 +39,7 @@ describe('validateSubmission', () => {
     const result = validateSubmission(valid(), NOW)
     expect(result.ok).toBe(true)
     if (!result.ok) return
-    expect(result.state.answers.topTasks).toEqual(['kyc', 'loan_files'])
+    expect(result.state.answers.topTasks).toEqual(['stock_count', 'excel_vouchers'])
     expect(result.state.answers.note).toBe('I want to go home on time.')
     expect(result.timeZone).toBe('Asia/Yangon')
   })
@@ -60,27 +61,24 @@ describe('validateSubmission', () => {
   })
 
   it('rejects options that are not in the survey', () => {
-    expect(reject((p) => void (p.answers.workplace = 'nasa' as never))).toBe('bad workplace')
-    expect(reject((p) => void (p.answers.tasks = ['loan_files', 'vouching']))).toBe('unknown tasks')
+    expect(reject((p) => void (p.answers.tasks = ['excel_vouchers', 'hack']))).toBe('unknown tasks')
     expect(reject((p) => void (p.answers.device = 'toaster'))).toBe('bad device')
   })
 
-  it('rejects ranking a task she did not pick, or more than 3', () => {
-    expect(reject((p) => void (p.answers.topTasks = ['kyc', 'aml']))).toBe('unknown topTasks')
-    expect(
-      reject((p) => {
-        p.answers.tasks = ['loan_files', 'kyc', 'aml', 'branch_audit']
-        p.answers.topTasks = ['loan_files', 'kyc', 'aml', 'branch_audit']
-      }),
-    ).toBe('too many topTasks')
+  it('rejects ranking a task she did not pick, or too many picks', () => {
+    expect(reject((p) => void (p.answers.topTasks = ['stock_count', 'reports']))).toBe('unknown topTasks')
+    expect(reject((p) => void (p.answers.problems = ['qty_mismatch', 'duplicates', 'wrong_date', 'wrong_totals']))).toBe(
+      'too many problems',
+    )
   })
 
-  it('rejects "Not sure" combined with other tools', () => {
-    expect(reject((p) => void (p.answers.tools = ['excel', 'not_sure']))).toBe('exclusive tools')
+  it('rejects "Not sure" combined with other answers', () => {
+    expect(reject((p) => void (p.answers.voucherFormat = ['paper', 'not_sure']))).toBe('exclusive voucherFormat')
   })
 
   it('rejects incomplete submissions and long notes', () => {
     expect(reject((p) => void (p.answers.device = undefined))).toBe('incomplete')
+    expect(reject((p) => void (p.answers.topTasks = []))).toBe('incomplete')
     expect(reject((p) => void (p.answers.note = 'x'.repeat(301)))).toBe('bad note')
   })
 
